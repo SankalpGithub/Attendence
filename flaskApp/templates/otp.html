@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <link rel ="stylesheet" type="text/css" href="otp.css">
+</head>
+<body>
+    <div class="container">
+        <h1>OTP Verification</h1>
+        <form action="#" method="post">
+            <label for="otp">Enter OTP:</label>
+            <input type="text" id="otp" name="otp" required>
+            <button type="button" id="verifyotp">Verify OTP</button>
+        </form>
+    </div>
+    <div id="floating-message" class="floating-message">
+        <span class="close-button" id="close-button">&times;</span>
+        <p id="message"></p>
+    </div>
+    <script src= "otp.js"></script>
+</body>
+</html>

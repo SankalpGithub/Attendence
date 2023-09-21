@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 
 
 #error function
-def not_found(error = None):
+def not_found():
     message = {
                 'status': 404,'message': 'Not Found ' + request.url
                 }
