@@ -11,8 +11,8 @@ app = Flask(__name__)
 
 
 
-myClient = con();
-myCol = myClient['Users']
+# myClient = con();
+# myCol = myClient['Users']
 
 
 # securitykey = os.getenv("SECURITY_KEY")
