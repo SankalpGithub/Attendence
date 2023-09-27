@@ -11,7 +11,7 @@ load_dotenv()
 
 
 
-myClient = con();
+myClient = con()
 myCol = myClient['Users']
 
 securityKey = os.getenv('SECURITY_KEY')
