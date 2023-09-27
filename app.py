@@ -1,6 +1,6 @@
 from flask import Flask
 from config.con_mongodb import con
-from flaskApp.routes import auth
+from flaskApp.routes import auth,classes
 
 app = Flask(__name__)
 
@@ -65,6 +65,20 @@ def verifyreset():
 @app.route('/resendotp', methods=['POST'])
 def resendotp():
     return auth.resendotp()
+
+
+@app.route('/createClass', methods=['POST'])
+def createClass():
+    return classes.createclass()
+
+@app.route('/getAllClasses',methods=['GET'])
+def getAllClasses():
+    return classes.getAllClasses()
+
+
+@app.route('/joinClass',methods=['POST'])
+def joinClass():
+    return classes.joinClass()
  
 
 if __name__ == "__main__":

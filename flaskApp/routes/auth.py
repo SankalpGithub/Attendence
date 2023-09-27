@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from config.con_mongodb import con
 from werkzeug.security import generate_password_hash, check_password_hash
-from flaskApp.utils import generate_authtoken, send_gmail,timer
+from flaskApp.utils import generate_authtoken, send_gmail
 from dotenv import load_dotenv
 import os
 import threading
@@ -42,7 +42,7 @@ def signup():
                 hash_password = generate_password_hash(password,method='sha256')
                 countD = myCol.count_documents({})
                 # token = generate_authtoken.generate_token(countD,securitykey)
-                myCol.insert_one({"_id": countD, "name": name, "email": email, "password": hash_password, "otp": otp, "isEmailVerify": False})
+                myCol.insert_one({"_id": countD, "name": name, "email": email, "password": hash_password, "createClass":[], "joinedClass": [], "otp": otp, "isEmailVerify": False})
                 print("starting timer")
                 timer_thread = threading.Timer(120.00,checkVerify,args=(countD,None))
                 timer_thread.start()
@@ -74,7 +74,7 @@ def verifyOtp():
         query = {'email': email}
         user = myCol.find_one(query)
 
-        if user['otp'] == user_otp:
+        if user['otp'] == user_otp and not user['isEmailVerify']:
             filter_criteria = {"_id": user['_id']}
             update_query = {"$unset": {"otp": 1},
                             "$set": {"isEmailVerify": True}}
