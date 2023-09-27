@@ -18,9 +18,7 @@ myCol = myClient['Users']
 # securitykey = os.getenv("SECURITY_KEY")
 # app.config['SECRET_KEY'] = securitykey
 
-@app.route('/',methods=['GET'])
-def getAllData():
-    return {'message': 'Hello world'}
+
 
 
 # # route for post user data
@@ -37,7 +35,7 @@ def verifyOtp():
 
     
 #route for get all users
-@app.route('/getAllUsers',methods=['GET'])
+@app.route('/',methods=['GET'])
 def getAllData():
     return auth.getAllData()
 
