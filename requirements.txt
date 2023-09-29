@@ -5,3 +5,4 @@ gunicorn==21.2.0
 python-dotenv==0.21.1
 PyJWT==2.8.0
 yagmail==0.15.293
+Flask-Cors == 4.0.0

@@ -117,6 +117,7 @@ def signin():
                 resp.status_code = 200
                 return resp
             else:
+                
                 return jsonify({'message': 'Authentication failed (incorrect password)'})
         elif not isEmailVerify:
             resp = jsonify({'message': 'Authentication failed (user is not verified)'})
@@ -189,7 +190,7 @@ def resetpassword():
                 recipient_email = email
 
                 subject = 'Reset password'
-                body = f'Click http://localhost:2700/verifyreset?token='+token+ ' to visit the link.'
+                body = f'Click https://takemyattendence-27rl.onrender.com/verifyreset?token='+token+ ' to reset password.'
                 send = send_gmail.send_otp_email(sender_email, gmailpassword, recipient_email, subject, body)
 
                 if send:

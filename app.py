@@ -4,10 +4,10 @@ from flaskApp.routes import auth,classes
 
 app = Flask(__name__)
 
-# from flask_cors import CORS
+from flask_cors import CORS
 
 # Configure CORS to allow requests from all origins
-# cors = CORS(app)
+cors = CORS(app)
 
 
 
