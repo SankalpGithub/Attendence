@@ -79,7 +79,7 @@ def verifyOtp():
             update_query = {"$unset": {"otp": 1},
                             "$set": {"isEmailVerify": True}}
             myCol.update_one(filter_criteria, update_query)
-            resp = jsonify({'message': 'User Added successfully'})
+            resp = jsonify(myCol.find_one({'_id': user['_id']}))
             resp.status_code = 200
             return resp
         else:
@@ -113,7 +113,7 @@ def signin():
         isEmailVerify = user['isEmailVerify']
         if user and isEmailVerify:
             if check_password_hash(user['password'], password):
-                resp = jsonify({'message': 'Authentication successful'})
+                resp = jsonify(myCol.find_one({'_id': user['_id']}))
                 resp.status_code = 200
                 return resp
             else:

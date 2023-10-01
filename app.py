@@ -1,6 +1,6 @@
 from flask import Flask
 from config.con_mongodb import con
-from flaskApp.routes import auth,classes
+from flaskApp.routes import auth,classes,user
 
 app = Flask(__name__)
 
@@ -79,7 +79,21 @@ def getAllClasses():
 @app.route('/joinClass',methods=['POST'])
 def joinClass():
     return classes.joinClass()
- 
+
+
+@app.route('/user',methods=['GET'])
+def getUserById():
+    return user.getUserById(0)
+
+
+@app.route('/allRequest',methods=['POST'])
+def allRequest():
+    return classes.allRequests()
+
+
+@app.route('/acceptrequest',methods=['POST'])
+def acceptrequest():
+    return classes.acceptrequest()
 
 if __name__ == "__main__":
     app.run() 

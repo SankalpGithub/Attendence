@@ -3,17 +3,18 @@ const registerButton = document.getElementById("registerButton");
 const serverResponse = document.getElementById("serverResponse");
 
 // Add a click event listener to the Register button
-registerButton.addEventListener("click", async function () {
+registerButton.addEventListener("click", function () {
   // Get values from the form inputs
-  const name = document.getElementById("fullname").value;
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  // const name = document.getElementById("fullname").value;
+  // const email = document.getElementById("email").value;
+  // const password = document.getElementById("password").value;
 
-  // Display the values in HTML
-  document.getElementById("displayFullName").textContent = "Full Name: " + name;
-  document.getElementById("displayEmail").textContent = "Email: " + email;
-  document.getElementById("displayPassword").textContent =
-    "Password: " + password;
+  // // Display the values in HTML
+  // document.getElementById("displayFullName").textContent = "Full Name: " + name;
+  // document.getElementById("displayEmail").textContent = "Email: " + email;
+  // document.getElementById("displayPassword").textContent = "Password: " + password;
+
+  window.location.herf="otp.html"
 
     
 
@@ -27,26 +28,26 @@ registerButton.addEventListener("click", async function () {
 
 
 
-  let dataToSend = {
-    email
-  };
-  await fetch("http://localhost:2700/signup", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(dataToSend),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data);
-      serverResponse.innerHTML = data.message;
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+  // let dataToSend = {
+  //   email
+  // };
+  // await fetch("http://localhost:2700/signup", {
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //   },
+  //   body: JSON.stringify(dataToSend),
+  // })
+  //   .then((response) => response.json())
+  //   .then((data) => {
+  //     console.log(data);
+  //     serverResponse.innerHTML = data.message;
+  //   })
+  //   .catch((error) => {
+  //     console.log(error);
+  //   });
 
-    window.location.href = 'otp.html';
+  //   window.location.href = 'otp.html';
 
   //   await fetch("http://localhost:2700/getAllUsers", { method: "GET" })
   //     .then((response) => response.json())
