@@ -45,11 +45,11 @@ def signup():
                 myCol.insert_one({"_id": countD, "name": name, "email": email, "password": hash_password, "createClass":[], "joinedClass": [], "otp": otp, "isEmailVerify": False})
                 timer_thread = threading.Timer(120.00,checkVerify,args=(countD,None))
                 timer_thread.start()
-                resp =  jsonify({'message': 'OTP sent successfully!'})
+                resp =  jsonify({'message': 'OTP sent successfully!', "status": True})
                 resp.status_code = 200
                 return resp
             else:
-                return jsonify({'message': 'Failed to send OTP'})
+                return jsonify({'message': 'Failed to send OTP', "status": False})
     except (ValueError, TypeError) as e:
     # Handle multiple exceptions
         resp = jsonify(f"Exception: {e}")
@@ -119,20 +119,21 @@ def signin():
                     id = user['_id']
                     authToken = generate_authtoken.generate_token(id,securityKey,None)
                     data = {
-                        "authToken": authToken
+                        "authToken": authToken,
+                        'permiddion': True
                     }
                     resp = jsonify(data)
                     resp.status_code = 200
                     return resp
                 else: 
-                    return jsonify({'message': 'Authentication failed (incorrect password)'}),404
+                    return jsonify({'message': 'Authentication failed (incorrect password)', "status": False}),404
             elif not isEmailVerify:
-                resp = jsonify({'message': 'Authentication failed (user is not verified)'}),404
+                resp = jsonify({'message': 'Authentication failed (user is not verified)', "status": False}),404
                 return resp
         else:
-            return jsonify({'message': 'Authentication failed (user not found)'}),404
+            return jsonify({'message': 'Authentication failed (user not found)', "status": False}),404
     except:
-        resp = jsonify({"message": 'Authentication failed (user not found)'}),404
+        resp = jsonify({"message": 'Authentication failed (user not found)', "status": False}),404
         return resp
 
 
@@ -169,9 +170,9 @@ def verify():
             update_query = {"$unset": {"token": 1},
                             "$set": {"password": hash_password}}
             myCol.update_one(filter_criteria, update_query)
-            return jsonify({'message': 'Password reset successfully'}),200
+            return jsonify({'message': 'Password reset successfully' "status": True}),200
         else:
-            return jsonify({'message': 'User not found'})
+            return jsonify({'message': 'User not found', "status": False})
     except (ValueError, TypeError) as e:
     # Handle multiple exceptions
         resp = jsonify(f"Exception: {e}"),404
@@ -199,11 +200,11 @@ def resetpassword():
                 send = send_gmail.send_otp_email(sender_email, gmailpassword, recipient_email, subject, body)
 
                 if send:
-                    resp = jsonify({'message': 'Link sent successfully'})
+                    resp = jsonify({'message': 'Link sent successfully', "status": True})
                     resp.status_code = 200
                     return resp
                 else:
-                    return jsonify({'message': 'Failed to send Link'}), 404
+                    return jsonify({'message': 'Failed to send Link', "status": False}), 404
         else:
             return jsonify({'message': 'User not found'})
     except (ValueError, TypeError) as e:
@@ -230,13 +231,13 @@ def resendotp():
                 filter_criteria = {"_id": user['_id']}
                 update_query = {"$set": {"otp": otp}}
                 myCol.update_one(filter_criteria, update_query)
-                resp = jsonify({'message': 'OTP sent successfully!'})
+                resp = jsonify({'message': 'OTP sent successfully!', "status": True})
                 resp.status_code = 200
                 return resp
             else:
-                return jsonify({'message': 'Failed to send OTP'}), 404
+                return jsonify({'message': 'Failed to send OTP', "status": False}), 404
         else:
-            return jsonify({'message': 'User not found'}), 404
+            return jsonify({'message': 'User not found', "status": False}), 404
     except (ValueError, TypeError) as e:
     # Handle multiple exceptions
         resp = jsonify(f"Exception: {e}"),404
