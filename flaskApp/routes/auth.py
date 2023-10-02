@@ -120,7 +120,7 @@ def signin():
                     authToken = generate_authtoken.generate_token(id,securityKey,None)
                     data = {
                         "authToken": authToken,
-                        'permiddion': True
+                        'status': True
                     }
                     resp = jsonify(data)
                     resp.status_code = 200
