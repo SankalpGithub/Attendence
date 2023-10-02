@@ -43,7 +43,6 @@ def signup():
                 countD = myCol.count_documents({})
                 # token = generate_authtoken.generate_token(countD,securitykey)
                 myCol.insert_one({"_id": countD, "name": name, "email": email, "password": hash_password, "createClass":[], "joinedClass": [], "otp": otp, "isEmailVerify": False})
-                print("starting timer")
                 timer_thread = threading.Timer(120.00,checkVerify,args=(countD,None))
                 timer_thread.start()
                 resp =  jsonify({'message': 'OTP sent successfully!'})
@@ -57,10 +56,9 @@ def signup():
         return resp
     
 def checkVerify(id,arg2):
-    print("Starting...")
     user = myCol.find_one({'_id': id})
     if user['isEmailVerify']:
-        print("user is verified")
+        pass
     elif not user['isEmailVerify']:
         deleteUserbyId(id)
         
@@ -79,8 +77,12 @@ def verifyOtp():
             update_query = {"$unset": {"otp": 1},
                             "$set": {"isEmailVerify": True}}
             myCol.update_one(filter_criteria, update_query)
-            resp = jsonify(myCol.find_one({'_id': user['_id']}))
-            resp.status_code = 200
+            id = user['_id']
+            authToken = generate_authtoken.generate_token(id,securityKey)
+            data = {
+                    "authToken": authToken
+                    }
+            resp = jsonify(data),200
             return resp
         else:
             resp = jsonify({'message': 'OTP incorrect'})
@@ -102,7 +104,7 @@ def getAllData():
     # Handle multiple exceptions
         resp = jsonify(f"Exception: {e}")
         return resp
-        
+
 #rout for authenticating a user
 def signin():
     try:
@@ -111,29 +113,32 @@ def signin():
         password = _json.get('password')
         user = myCol.find_one({'email': email})
         isEmailVerify = user['isEmailVerify']
-        if user and isEmailVerify:
-            if check_password_hash(user['password'], password):
-                resp = jsonify(myCol.find_one({'_id': user['_id']}))
-                resp.status_code = 200
+        if user:
+            if isEmailVerify:
+                if check_password_hash(user['password'], password):
+                    id = user['_id']
+                    authToken = generate_authtoken.generate_token(id,securityKey,None)
+                    data = {
+                        "authToken": authToken
+                    }
+                    resp = jsonify(data)
+                    resp.status_code = 200
+                    return resp
+                else: 
+                    return jsonify({'message': 'Authentication failed (incorrect password)'}),404
+            elif not isEmailVerify:
+                resp = jsonify({'message': 'Authentication failed (user is not verified)'}),404
                 return resp
-            else:
-                
-                return jsonify({'message': 'Authentication failed (incorrect password)'})
-        elif not isEmailVerify:
-            resp = jsonify({'message': 'Authentication failed (user is not verified)'})
-            return resp
         else:
-            return jsonify({'message': 'Authentication failed (user not found)'})
-    except (ValueError, TypeError) as e:
-    # Handle multiple exceptions
-        resp = jsonify(f"Exception: {e}")
+            return jsonify({'message': 'Authentication failed (user not found)'}),404
+    except:
+        resp = jsonify({"message": 'Authentication failed (user not found)'}),404
         return resp
 
 
 #delete user by delete method
 def deleteUserbyId(id):
     try:
-        print("user deleted")
         if myCol.find_one({'_id': id}):
             # Delete the user with the custom ID
             myCol.delete_one({'_id': id})
@@ -180,7 +185,7 @@ def resetpassword():
         password = _json.get('password')
         user = myCol.find_one({'email': email})
         if user and user['isEmailVerify']:
-                token = generate_authtoken.generate_token(user['_id'],password,securityKey)
+                token = generate_authtoken.generate_token(user['_id'],securityKey,password)
                 print(token)
                 filter_criteria = {"_id": user['_id']}
                 update_query = {"$set": {"token": token}}
@@ -190,7 +195,7 @@ def resetpassword():
                 recipient_email = email
 
                 subject = 'Reset password'
-                body = f'Click https://takemyattendence-27rl.onrender.com/verifyreset?token='+token+ ' to reset password.'
+                body = f'Click https://takemyattendence-27rl.onrender.com//verifyreset?token='+token+ ' to reset password.'
                 send = send_gmail.send_otp_email(sender_email, gmailpassword, recipient_email, subject, body)
 
                 if send:

@@ -4,10 +4,10 @@ import jwt
 
 
 
-def generate_token(id,password,securitykey): 
+def generate_token(id,securitykey,*args): 
     payload = {
             'id': id,
-            'password': password
+            'password': args[0]
     }
     token = jwt.encode(payload,securitykey, algorithm='HS256')
     return token
@@ -17,8 +17,8 @@ def decode_token(token,securitykey):
     try:
         payload = jwt.decode(token,securitykey, algorithms=['HS256'])
         data = {
-        'password': payload['id'],
-        'email': payload['email']    
+        'id': payload['id'],
+        'password': payload['password'] 
         }   
         return data
     except jwt.ExpiredSignatureError:

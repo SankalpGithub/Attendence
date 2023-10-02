@@ -1,21 +1,25 @@
 from flask import request, jsonify
 from config.con_mongodb import con
-from flaskApp.utils import dateTime,idGenerator
+from flaskApp.utils import dateTime,idGenerator,generate_authtoken
 from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 myClient = con()
 myCol = myClient['Users']
 myColClass = myClient['Class']
-
+securityKey = os.getenv('SECURITY_KEY')
 
 def createclass():
     try:
         _json = request.json
         className = _json.get('className')
         classPassword = _json.get('classPassword')
-        userId = _json.get('userId')
         hash_classPassword = generate_password_hash(classPassword,method='sha256')
-        
+        authToken = request.headers.get('authToken')
+        data = generate_authtoken.decode_token(authToken,securityKey)
+        userId = data['id']
         id = 0
         datetime  = dateTime.daytime()
         date = datetime['date']
@@ -78,12 +82,14 @@ def getAllClasses():
 def joinClass():
     try:
         _json = request.json
-        userId = _json.get('UserId')
         name = _json.get('name')
         rollno = _json.get('rollno')
         email = _json.get('email')
         classId = _json.get('classId')
         classPassword = _json.get('classPassword')
+        authToken = request.headers.get('authToken')
+        data = generate_authtoken.decode_token(authToken,securityKey)
+        userId = data['id']
         isClass = myColClass.find_one({'_id': classId})
         user = myCol.find_one({'_id': userId})
         numberOfStudents =  len(user.get("joinedStudent", []))
@@ -171,9 +177,11 @@ def allRequests():
 def acceptrequest():
     try:
         _json = request.json
-        userId = _json.get('userId')
         classId = _json.get('classId')
         isAccepted = _json.get('isAccepted')
+        authToken = request.headers.get('authToken')
+        data = generate_authtoken.decode_token(authToken,securityKey)
+        userId = data['id']
         user = myCol.find_one({'_id': userId})
         joined = user['joinedClass']
         print(joined)
