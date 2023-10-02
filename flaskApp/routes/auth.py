@@ -170,7 +170,7 @@ def verify():
             update_query = {"$unset": {"token": 1},
                             "$set": {"password": hash_password}}
             myCol.update_one(filter_criteria, update_query)
-            return jsonify({'message': 'Password reset successfully' "status": True}),200
+            return jsonify({'message': 'Password reset successfully', "status": True}),200
         else:
             return jsonify({'message': 'User not found', "status": False})
     except (ValueError, TypeError) as e:
