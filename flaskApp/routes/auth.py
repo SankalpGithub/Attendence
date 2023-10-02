@@ -27,7 +27,7 @@ def signup():
         query = {'email': email}
         existing_document = myCol.find_one(query)
         if existing_document:
-            resp = jsonify({'message': 'User already existing'})
+            resp = jsonify({'message': 'User already existing', 'status': False})
             return resp
         else:
             sender_email = os.getenv("sender_email")
