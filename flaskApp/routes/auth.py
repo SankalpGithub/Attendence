@@ -27,7 +27,7 @@ def signup():
         query = {'email': email}
         existing_document = myCol.find_one(query)
         if existing_document:
-            resp = jsonify({'message': 'User already existing'})
+            resp = jsonify({'message': 'User already existing', 'status': False})
             return resp
         else:
             sender_email = os.getenv("sender_email")
@@ -43,7 +43,7 @@ def signup():
                 countD = myCol.count_documents({})
                 # token = generate_authtoken.generate_token(countD,securitykey)
                 myCol.insert_one({"_id": countD, "name": name, "email": email, "password": hash_password, "createClass":[], "joinedClass": [], "otp": otp, "isEmailVerify": False})
-                timer_thread = threading.Timer(120.00,checkVerify,args=(countD,None))
+                timer_thread = threading.Timer(300.00,checkVerify,args=(countD,None))
                 timer_thread.start()
                 resp =  jsonify({'message': 'OTP sent successfully!', "status": True})
                 resp.status_code = 200
@@ -72,22 +72,28 @@ def verifyOtp():
         query = {'email': email}
         user = myCol.find_one(query)
 
-        if user['otp'] == user_otp and not user['isEmailVerify']:
-            filter_criteria = {"_id": user['_id']}
-            update_query = {"$unset": {"otp": 1},
-                            "$set": {"isEmailVerify": True}}
-            myCol.update_one(filter_criteria, update_query)
-            id = user['_id']
-            authToken = generate_authtoken.generate_token(id,securityKey)
-            data = {
-                    "authToken": authToken
-                    }
-            resp = jsonify(data),200
-            return resp
+        if not user['isEmailVerify']:
+            if user['otp'] == user_otp:
+                filter_criteria = {"_id": user['_id']}
+                update_query = {"$unset": {"otp": 1},
+                                "$set": {"isEmailVerify": True}}
+                myCol.update_one(filter_criteria, update_query)
+                id = user['_id']
+                authToken = generate_authtoken.generate_token(id,securityKey,None)
+                data = {
+                        "authToken": authToken
+                        }
+                resp = jsonify(data),200
+                return resp
+            else:
+                resp = jsonify({'message': 'OTP incorrect'})
+                resp.status_code = 404
+                return resp
         else:
-            resp = jsonify({'message': 'OTP incorrect'})
+            resp = jsonify({'message': 'User already verified'})
             resp.status_code = 404
             return resp
+            
     except (ValueError, TypeError) as e:
     # Handle multiple exceptions
         resp = jsonify(f"Exception: {e}")
