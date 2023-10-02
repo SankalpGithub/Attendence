@@ -86,17 +86,16 @@ def verifyOtp():
                 resp = jsonify(data),200
                 return resp
             else:
-                resp = jsonify({'message': 'OTP incorrect'})
+                resp = jsonify({'message': 'OTP incorrect', "status": False})
                 resp.status_code = 404
                 return resp
         else:
-            resp = jsonify({'message': 'User already verified'})
+            resp = jsonify({'message': 'User already verified', "status": False})
             resp.status_code = 404
             return resp
             
-    except (ValueError, TypeError) as e:
-    # Handle multiple exceptions
-        resp = jsonify(f"Exception: {e}")
+    except:
+        resp = jsonify({"message": 'Authentication failed (user not found)', "status": False}),404
         return resp
     
 #route for get all users

@@ -59,7 +59,7 @@ def createclass():
         update_query = {"$push": {"createClass": data}}
         # Perform the update
         myCol.update_one(user, update_query)
-        resp = jsonify({'message': 'class created succcessfully'})
+        resp = jsonify({'message': 'class created succcessfully', 'status': True})
         resp.status_code = 200
         return resp
     
@@ -137,21 +137,21 @@ def joinClass():
                     # Perform the update
                     myColClass.update_one(isClass, update_query)
                     myCol.update_one(user, update_join)
-                    resp = jsonify({'message': 'request sent to host'})
+                    resp = jsonify({'message': 'request sent to host', 'status': True})
                     resp.status_code = 200
                     return resp
                 else:
-                    resp = jsonify({'message': 'invalid information'})
+                    resp = jsonify({'message': 'invalid information', 'status': False})
                     resp.status_code = 401
                     return resp
             elif foundINJoin:
-                resp = jsonify("You have allready joined the class")
+                resp = jsonify({'messager': "You have allready joined the class", 'status': False})
                 return resp
             elif foundInRequest:
-                resp = jsonify("You have sent request to host of the class")
+                resp = jsonify({'messager': "You have sent request to host of the class", 'status': False})
                 return resp
         else:
-            return jsonify({'message': 'class not found'})
+            return jsonify({'message': 'class not found', 'status': False})
             
         
     except (ValueError, TypeError) as e:
@@ -178,11 +178,10 @@ def acceptrequest():
     try:
         _json = request.json
         classId = _json.get('classId')
+        email = _json.get('email')
         isAccepted = _json.get('isAccepted')
-        authToken = request.headers.get('authToken')
-        data = generate_authtoken.decode_token(authToken,securityKey)
-        userId = data['id']
-        user = myCol.find_one({'_id': userId})
+        user = myCol.find_one({'email': email})
+        userId = user['_id']
         joined = user['joinedClass']
         print(joined)
         
@@ -228,7 +227,7 @@ def acceptrequest():
             update_join = {"$pull": {'joinedClass': {"classId": classId}}}
             # Perform the update
             myColClass.update_one(isClass, update_request)
-            myColClass.update_one(user, update_join)
+            myCol.update_one(user, update_join)
             resp = jsonify({'message': 'request rejected'})
             resp.status_code = 200
             return resp
