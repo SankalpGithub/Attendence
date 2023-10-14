@@ -83,7 +83,7 @@ def joinClass():
 
 @app.route('/user',methods=['GET'])
 def getUserById():
-    return user.getUserById(0)
+    return user.getUserById()
 
 
 @app.route('/allRequest',methods=['POST'])
@@ -94,6 +94,14 @@ def allRequest():
 @app.route('/acceptrequest',methods=['POST'])
 def acceptrequest():
     return classes.acceptrequest()
+
+@app.route('/deleteclass/<int:id>', methods=['DELETE'])
+def deleteClassbyId(id):
+    return classes.deleteClassbyId(id)
+
+@app.route('/createLecture',methods=['POST'])
+def createLecture():
+    return classes.createLecture()
 
 if __name__ == "__main__":
     app.run() 

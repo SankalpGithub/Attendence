@@ -9,6 +9,7 @@ load_dotenv()
 myClient = con()
 myCol = myClient['Users']
 myColClass = myClient['Class']
+myColLectures = myClient['lectures']
 securityKey = os.getenv('SECURITY_KEY')
 
 def createclass():
@@ -47,9 +48,10 @@ def createclass():
         myColClass.insert_one({'_id':id, 'className': className, 'classPassword': hash_classPassword, 'userId': userId, 'generateCode': generateCode, 'date': date, 'day': day, 'time': time,
                                'joinedStudent': [], 'requested': [], 'takeClass': []})
         user = myCol.find_one({'_id': userId})
+        isClass = myColClass.find_one({'_id': id})
         
     # Replace with the key-value pair you want to add
-        numberOfStudents =  len(user.get("joinedStudent", []))
+        numberOfStudents =  len(isClass.get("joinedStudent", []))
         data = {
             "classId": id,
             "className": className,
@@ -91,12 +93,13 @@ def joinClass():
         data = generate_authtoken.decode_token(authToken,securityKey)
         userId = data['id']
         isClass = myColClass.find_one({'_id': classId})
+        joined = isClass['joinedStudent']
         user = myCol.find_one({'_id': userId})
-        numberOfStudents =  len(user.get("joinedStudent", []))
+        numberOfStudents =  len(joined)
         className = isClass['className']
         
         data = {
-            'userId': userId,
+            'joinuserId': userId,
             'name': name,
             'email': email,
             'rollno': rollno,
@@ -109,26 +112,21 @@ def joinClass():
         }
         
         joinedStudent = isClass['joinedStudent']
-        print(joinedStudent)
         requested = isClass['requested']
         # Perform the query
         foundINJoin = False
         foundInRequest = False
 
         for item in joinedStudent:
-            if item.get("userId") == userId:
+            if item.get("joinuserId") == userId:
                 foundINJoin = True
                 break
         
         for item in requested:
-            if item.get("userId") == userId:
+            if item.get("joinuserId") == userId:
                 foundInRequest = True
                 break
 
-        print(joinedStudent)
-        
-        # requestresult = myColClass.find({requested: userId})
-        print(requested)
         if isClass:
             if not foundINJoin and  not foundInRequest:
                 if check_password_hash(isClass['classPassword'], classPassword):
@@ -181,44 +179,46 @@ def acceptrequest():
         email = _json.get('email')
         isAccepted = _json.get('isAccepted')
         user = myCol.find_one({'email': email})
-        userId = user['_id']
-        joined = user['joinedClass']
-        print(joined)
-        
         isClass = myColClass.find_one({'_id': classId})
-        print(isClass)
+        userId = user['_id']
+        joined = isClass['joinedStudent']
+        print(joined)
         requested = isClass['requested']
-        print(requested)
         
         
-        found_entry = None
-
+        found_entry_request = None 
+       
         for item in requested:
-            if item.get("userId") == userId:
-                found_entry = item
+            if item.get("joinuserId") == userId:
+                found_entry_request = item
                 break
         
-        found_joinEntry = None
-
-        for item in joined:
-            if item.get("classId") == classId:
-                found_joinEntry = item
-                break
-            
+        
         data = {
-            'userId': found_entry['userId'],
-            'name': found_entry['name'],
-            'email': found_entry['email'],
-            'rollno': found_entry['rollno'],
+            'userId': found_entry_request['joinuserId'],
+            'name': found_entry_request['name'],
+            'email': found_entry_request['email'],
+            'rollno': found_entry_request['rollno'],
         }
+        print(f"data = {data}")
         if isAccepted:
-            updated_query = {"$push": {"requestStatus": True}}
             update_join = {"$push": {"joinedStudent": data}}
-            update_request = {"$pull": {'requested': {"userId": userId}}}
+            update_request ={ "$pull": { "requested": { "joinuserId": userId }}} 
+            updated_query = {"$set": { "joinedClass.$.requestStatus": True}}
+            
             # Perform the update
-            myCol.update_one(user, updated_query)
-            myCol.update_one(isClass, update_join)
-            myCol.update_one(isClass, update_request)
+            myColClass.update_one(isClass, update_join)
+            myColClass.update_one({"_id": classId}, update_request)
+            myCol.update_one({"_id": userId, "joinedClass.classId": classId}, updated_query)
+            
+            numberOfStudents =  len(joined)
+            updated_numberofS = { "$set": {"createClass.$.numberOfStudents": numberOfStudents }}
+            updated_numberofs_join = { "$set": {"joinedClass.$.numberOfStudents": numberOfStudents }}
+            
+            myCol.update_one({"_id": userId}, updated_numberofS)
+            myCol.update_one({"_id": userId, "joinedClass.classId": classId}, updated_numberofs_join)
+            
+            
             resp = jsonify({'message': 'request accepted'})
             resp.status_code = 200
             return resp
@@ -235,3 +235,64 @@ def acceptrequest():
     # Handle multiple exceptions
         resp = jsonify(f"Exception: {e}")
         return resp
+    
+def deleteClassbyId(id):
+    try:
+        if myColClass.find_one({'_id': id}):
+            isClass = myColClass.find_one({'_id': id})
+            userId = isClass['userId']
+            user = myCol.find_one({'_id': userId})
+            # Delete the user with the custom ID
+            myColClass.delete_one({'_id': id})
+            update_request = {"$pull": {'requested': {"userId": userId}}}
+            update_join = {"$pull": {'joinedClass': {"classId": id}}}
+            update_created = {"$pull": {'createClass': {"classId": id}}}
+            myColClass.update_one(isClass, update_request)
+            myCol.update_one(user, update_join)
+            myCol.update_one(user, update_created)
+            resp = jsonify({'message': 'Class deleted successfully', 'status': True})
+            resp.status_code = 200
+            return resp
+        else:
+            return jsonify({'message': 'User not found', 'status': False}),404
+    except (ValueError, TypeError) as e:
+        # Handle multiple exceptions
+        resp = jsonify(f"Exception: {e}")
+        return resp 
+    
+    #starting lectures
+    
+def createLecture():
+    try:
+        _json = request.json
+        classId = _json.get('classId')
+        presentStudents = _json.get('presentStudents')
+        absentStudents = _json.get('absentStudents')
+        lectureStatus = _json.get('lectureStatus')
+        datetime  = dateTime.daytime()
+        date = datetime['date']
+        day = datetime['day']
+        time = datetime['time']
+        isClass = myColClass.find_one({'_id': classId})
+        countD = myColLectures.count_documents({})
+        lectureData = {
+            'lectureId': countD,
+            'date': date,
+            'day': day,
+            'time': time,
+            'lectureStatus': lectureStatus
+            }
+        if lectureStatus == 11:
+            resp = jsonify({'message': f'lecture is uploded', 'status': True})
+        elif lectureStatus == 10:
+            resp = jsonify({'message': f'lecture is on hold', 'status': True})
+        myColLectures.insert_one({'_id': countD, 'classId': classId, 'date': date, 'day': day, 'time': time, 'presentstudents': presentStudents, 'absentStudents': absentStudents, 'lectureStatus': lectureStatus})
+        update_takeclass = {"$push": {"takeClass": lectureData}}
+        myColClass.update_one(isClass, update_takeclass)
+        resp.status_code = 200
+        return resp
+    except (ValueError, TypeError) as e:
+        # Handle multiple exceptions
+        resp = jsonify(f"Exception: {e}")
+        return resp
+        

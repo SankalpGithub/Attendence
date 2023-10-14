@@ -4,7 +4,7 @@ import jwt
 
 
 
-def generate_token(id,securitykey,*args): 
+def generate_token(id,securitykey,*args):
     payload = {
             'id': id,
             'password': args[0]
@@ -25,6 +25,4 @@ def decode_token(token,securitykey):
         return {'message': 'Token has expired'},401
     except jwt.InvalidTokenError:
         return {'message': 'Invalid token'},401
-
-token = generate_token(1,'AttendenceSystemWithSankalp@22co17Sahil@22co14Deepak@22co13',None)
-print(token)
+#print(generate_token(1,'AttendenceSystemWithSankalp@22co17Sahil@22co14Deepak@22co13',None))

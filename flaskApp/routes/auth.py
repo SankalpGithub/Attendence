@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, render_template
 from config.con_mongodb import con
 from werkzeug.security import generate_password_hash, check_password_hash
 from flaskApp.utils import generate_authtoken, send_gmail
@@ -69,8 +69,7 @@ def verifyOtp():
         _json = request.json
         email = _json.get('email')
         user_otp = _json.get('user_otp')
-        query = {'email': email}
-        user = myCol.find_one(query)
+        user = myCol.find_one({'email': email})
 
         if not user['isEmailVerify']:
             if user['otp'] == user_otp:
@@ -148,11 +147,11 @@ def deleteUserbyId(id):
         if myCol.find_one({'_id': id}):
             # Delete the user with the custom ID
             myCol.delete_one({'_id': id})
-            resp = jsonify({'message': 'User deleted successfully'})
+            resp = jsonify({'message': 'User deleted successfully', 'status': True})
             resp.status_code = 200
             return resp
         else:
-            return jsonify({'message': 'User not found'}), 404
+            return jsonify({'message': 'User not found', 'status': False}),404
 
     except (ValueError, TypeError) as e:
     # Handle multiple exceptions
@@ -175,9 +174,9 @@ def verify():
             update_query = {"$unset": {"token": 1},
                             "$set": {"password": hash_password}}
             myCol.update_one(filter_criteria, update_query)
-            return jsonify({'message': 'Password reset successfully', "status": True}),200
+            return render_template('resetpass.html')
         else:
-            return jsonify({'message': 'User not found', "status": False})
+            return jsonify({'message': 'something wents wrong', 'status': False})
     except (ValueError, TypeError) as e:
     # Handle multiple exceptions
         resp = jsonify(f"Exception: {e}"),404
@@ -201,7 +200,7 @@ def resetpassword():
                 recipient_email = email
 
                 subject = 'Reset password'
-                body = f'Click https://takemyattendence-27rl.onrender.com//verifyreset?token='+token+ ' to reset password.'
+                body = f'Click http://localhost:5000//verifyreset?token='+token+ ' to reset password.'
                 send = send_gmail.send_otp_email(sender_email, gmailpassword, recipient_email, subject, body)
 
                 if send:
