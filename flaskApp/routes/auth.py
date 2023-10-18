@@ -80,21 +80,24 @@ def verifyOtp():
                 id = user['_id']
                 authToken = generate_authtoken.generate_token(id,securityKey,None)
                 data = {
-                        "authToken": authToken
+                        "authToken": authToken,
+                        "status": True
                         }
-                resp = jsonify(data),200
+                resp = jsonify(data)
+                resp.status_code = 200
                 return resp
             else:
                 resp = jsonify({'message': 'OTP incorrect', "status": False})
-                resp.status_code = 404
+                resp.status_code = 200
                 return resp
         else:
             resp = jsonify({'message': 'User already verified', "status": False})
-            resp.status_code = 404
+            resp.status_code = 200
             return resp
             
     except:
-        resp = jsonify({"message": 'Authentication failed (user not found)', "status": False}),404
+        resp = jsonify({"message": 'Authentication failed (user not found)', "status": False})
+        resp.status_code = 200
         return resp
     
 #route for get all users
