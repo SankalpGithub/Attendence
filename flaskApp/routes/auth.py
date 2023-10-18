@@ -133,14 +133,20 @@ def signin():
                     resp.status_code = 200
                     return resp
                 else: 
-                    return jsonify({'message': 'Authentication failed (incorrect password)', "status": False}),404
+                    resp = jsonify({'message': 'Authentication failed (incorrect password)', "status": False})
+                    resp.status_code = 200
+                    return resp
             elif not isEmailVerify:
-                resp = jsonify({'message': 'Authentication failed (user is not verified)', "status": False}),404
+                resp = jsonify({'message': 'Authentication failed (user is not verified)', "status": False})
+                resp.status_code = 200
                 return resp
         else:
-            return jsonify({'message': 'Authentication failed (user not found)', "status": False}),404
+            resp = jsonify({'message': 'Authentication failed (user not found)', "status": False})
+            resp.status_code = 200
+            return resp
     except:
-        resp = jsonify({"message": 'Authentication failed (user not found)', "status": False}),404
+        resp = jsonify({"message": 'Authentication failed (user not found)', "status": False})
+        resp.status_code = 200
         return resp
 
 
