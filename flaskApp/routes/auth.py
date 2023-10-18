@@ -200,7 +200,7 @@ def resetpassword():
                 recipient_email = email
 
                 subject = 'Reset password'
-                body = f'Click http://localhost:5000//verifyreset?token='+token+ ' to reset password.'
+                body = f'Click https://takemyattendence-27rl.onrender.com/verifyreset?token='+token+ ' to reset password.'
                 send = send_gmail.send_otp_email(sender_email, gmailpassword, recipient_email, subject, body)
 
                 if send:

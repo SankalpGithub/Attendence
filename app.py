@@ -103,5 +103,25 @@ def deleteClassbyId(id):
 def createLecture():
     return classes.createLecture()
 
+@app.route('/getAllLectures',methods=['POST'])
+def getAllLectures():
+    return user.getAllLectures()
+
+@app.route('/getMyAttendence',methods=['POST'])
+def getMyAttendence():
+    return user.getMyAttendence()
+
+@app.route('/getAllStudents',methods=['POST'])
+def getAllStudents():
+    return user.getAllStudents()
+
+@app.route('/classAttendence',methods=['POST'])
+def classAttendence():
+    return user.classAttendence()
+
+@app.route('/export',methods=['POST'])
+def export():
+    return user.export()
+
 if __name__ == "__main__":
     app.run() 
