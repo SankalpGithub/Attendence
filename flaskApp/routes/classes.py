@@ -200,7 +200,6 @@ def acceptrequest():
             'email': found_entry_request['email'],
             'rollno': found_entry_request['rollno'],
         }
-        print(f"data = {data}")
         if isAccepted:
             update_join = {"$push": {"joinedStudent": data}}
             update_request ={ "$pull": { "requested": { "joinuserId": userId }}} 

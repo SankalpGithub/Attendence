@@ -22,3 +22,4 @@ def decode_token(token,securitykey):
         return {'message': 'Token has expired'},401
     except jwt.InvalidTokenError:
         return {'message': 'Invalid token'},401
+    

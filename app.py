@@ -123,5 +123,9 @@ def classAttendence():
 def export():
     return user.export()
 
+@app.route('/exportlist',methods=['POST'])
+def exportlist():
+    return user.exportlist()
+
 if __name__ == "__main__":
     app.run() 

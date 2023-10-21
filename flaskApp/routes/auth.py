@@ -10,7 +10,6 @@ load_dotenv()
 
 
 
-
 myClient = con()
 myCol = myClient['Users']
 
@@ -255,3 +254,5 @@ def resendotp():
     # Handle multiple exceptions
         resp = jsonify(f"Exception: {e}"),404
         return resp
+    
+print(check_password_hash("sha256$hi9bLHf0y97hilwN$43dca750bb716f429d76647697d187ac1bf86396888da0d1777524fe6ee4cced","am3123"))
