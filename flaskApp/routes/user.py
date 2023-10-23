@@ -67,7 +67,7 @@ def getMyAttendence():
         mylec = list(result)
         infoList = []
         print(mylec)
-        for item in result:
+        for item in mylec:
             if userId in item['presentstudents']:
                 presentStatus = True
                 print(presentStatus)
