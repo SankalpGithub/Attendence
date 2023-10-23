@@ -54,10 +54,10 @@ def getMyAttendence():
     try:
         _json = request.json
         classId = _json.get('classId')
-        studentId = _json.get('studentId')
+        email = _json.get('email')
         myClass = myColClass.find_one({'_id': classId})
         print(myClass)
-        user = myCol.find_one({'_id': myClass['userId']})
+        user = myCol.find_one({'email': email})
         print(user)
         className = myClass['className']
         name = user['name']
@@ -67,7 +67,7 @@ def getMyAttendence():
         infoList = []
         print(mylec)
         for item in mylec:
-            if studentId in item['presentstudents']:
+            if user['userId'] in item['presentstudents']:
                 presentStatus = True
             else:
                 presentStatus = False        
