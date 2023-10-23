@@ -58,6 +58,7 @@ def getMyAttendence():
         myClass = myColClass.find_one({'_id': classId})
         print(myClass)
         user = myCol.find_one({'email': email})
+        userId = user['_id']
         print(user)
         className = myClass['className']
         name = user['name']
@@ -67,7 +68,7 @@ def getMyAttendence():
         infoList = []
         print(mylec)
         for item in mylec:
-            if user['userId'] in item['presentstudents']:
+            if userId in item['presentstudents']:
                 presentStatus = True
             else:
                 presentStatus = False        
