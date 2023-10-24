@@ -1,6 +1,6 @@
 from flask import request, jsonify, send_file
 from config.con_mongodb import con
-from flaskApp.utils import generate_authtoken
+from flaskApp.utils import generate_authtoken, preseentOrAbsent
 from dotenv import load_dotenv
 import os
 from openpyxl import Workbook
@@ -56,23 +56,16 @@ def getMyAttendence():
         classId = _json.get('classId')
         email = _json.get('email')
         myClass = myColClass.find_one({'_id': classId})
-        print(myClass)
         user = myCol.find_one({'email': email})
         userId = user['_id']
-        print(user)
         className = myClass['className']
         name = user['name']
-        presentStatus = False
         result = myColLectures.find({'classId': classId})
-        mylec = list(result)
         infoList = []
-        print(mylec)
-        for item in mylec:
-            if userId in item['presentstudents']:
-                presentStatus = True
-                print(presentStatus)
-            else:
-                presentStatus = False        
+        for item in result:
+            presentStudent = item['presentstudents']
+            absentStudent = item['absentStudents']
+            presentStatus = preseentOrAbsent.find_user_id(userId, presentStudent, absentStudent)
             data = {
             'presentStatus': presentStatus,
             'date': item['date'],
