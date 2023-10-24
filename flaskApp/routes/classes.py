@@ -182,7 +182,6 @@ def acceptrequest():
         isClass = myColClass.find_one({'_id': classId})
         userId = user['_id']
         joined = isClass['joinedStudent']
-        print(joined)
         requested = isClass['requested']
         
         

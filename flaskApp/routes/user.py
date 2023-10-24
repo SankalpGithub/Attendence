@@ -57,9 +57,11 @@ def getMyAttendence():
         email = _json.get('email')
         myClass = myColClass.find_one({'_id': classId})
         user = myCol.find_one({'email': email})
+        teacherId = myClass['userId']
+        teacher = myCol.find_one({'_id': teacherId})
         userId = user['_id']
         className = myClass['className']
-        name = user['name']
+        name = teacher['name']
         result = myColLectures.find({'classId': classId})
         infoList = []
         for item in result:
