@@ -17,7 +17,7 @@ def createclass():
         _json = request.json
         className = _json.get('className')
         classPassword = _json.get('classPassword')
-        hash_classPassword = generate_password_hash(classPassword,method='sha256')
+        # hash_classPassword = generate_password_hash(classPassword,method='sha256')
         authToken = request.headers.get('authToken')
         data = generate_authtoken.decode_token(authToken,securityKey)
         userId = data['id']
@@ -45,7 +45,7 @@ def createclass():
                 isCode = True
         
         
-        myColClass.insert_one({'_id':id, 'className': className, 'classPassword': hash_classPassword, 'userId': userId, 'generateCode': generateCode, 'date': date, 'day': day, 'time': time,
+        myColClass.insert_one({'_id':id, 'className': className, 'classPassword': classPassword, 'userId': userId, 'generateCode': generateCode, 'date': date, 'day': day, 'time': time,
                                'joinedStudent': [], 'requested': [], 'takeClass': []})
         user = myCol.find_one({'_id': userId})
         isClass = myColClass.find_one({'_id': id})
@@ -129,7 +129,7 @@ def joinClass():
 
         if isClass:
             if not foundINJoin and  not foundInRequest:
-                if check_password_hash(isClass['classPassword'], classPassword):
+                if isClass['classPassword'] == classPassword:
                     update_query = {"$push": {"requested": data}}
                     update_join = {"$push": {"joinedClass": joindata}}
                     # Perform the update

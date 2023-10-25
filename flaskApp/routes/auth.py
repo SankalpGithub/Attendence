@@ -40,6 +40,15 @@ def signup():
             if send:
                 hash_password = generate_password_hash(password,method='sha256')
                 countD = myCol.count_documents({})
+                
+                isId = True
+                while isId:
+                    if not myCol.find_one({'_id': countD}):
+                        isId = False
+                    else:
+                        isId = True
+                        countD = countD + 1
+                        
                 # token = generate_authtoken.generate_token(countD,securitykey)
                 myCol.insert_one({"_id": countD, "name": name, "email": email, "password": hash_password, "createClass":[], "joinedClass": [], "otp": otp, "isEmailVerify": False})
                 timer_thread = threading.Timer(300.00,checkVerify,args=(countD,None))
