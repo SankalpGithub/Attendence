@@ -240,23 +240,26 @@ def resendotp():
         email = _json.get('email')
         user = myCol.find_one({'email': email})
         if user:
-            sender_email = os.getenv("sender_email")
-            gmailpassword = os.getenv("password")
-            recipient_email = email
-            otp = int(send_gmail.generate_otp())
-            subject = 'Your OTP Code'
-            body = f'Your OTP code is: {otp}'
-            send = send_gmail.send_otp_email(sender_email, gmailpassword, recipient_email, subject, body)
+            if not user['isEmailVerify']:
+                sender_email = os.getenv("sender_email")
+                gmailpassword = os.getenv("password")
+                recipient_email = email
+                otp = int(send_gmail.generate_otp())
+                subject = 'Your OTP Code'
+                body = f'Your OTP code is: {otp}'
+                send = send_gmail.send_otp_email(sender_email, gmailpassword, recipient_email, subject, body)
 
-            if send:
-                filter_criteria = {"_id": user['_id']}
-                update_query = {"$set": {"otp": otp}}
-                myCol.update_one(filter_criteria, update_query)
-                resp = jsonify({'message': 'OTP sent successfully!', "status": True})
-                resp.status_code = 200
-                return resp
+                if send:
+                    filter_criteria = {"_id": user['_id']}
+                    update_query = {"$set": {"otp": otp}}
+                    myCol.update_one(filter_criteria, update_query)
+                    resp = jsonify({'message': 'OTP sent successfully!', "status": True})
+                    resp.status_code = 200
+                    return resp
+                else:
+                    return jsonify({'message': 'Failed to send OTP', "status": False}), 404
             else:
-                return jsonify({'message': 'Failed to send OTP', "status": False}), 404
+                return jsonify({'message': 'User already verified', "status": False}), 404
         else:
             return jsonify({'message': 'User not found', "status": False}), 404
     except (ValueError, TypeError) as e:
