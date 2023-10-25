@@ -55,6 +55,7 @@ def createclass():
         data = {
             "classId": id,
             "className": className,
+            "classPassword": classPassword,
             "numberOfStudents": numberOfStudents
 
         }
